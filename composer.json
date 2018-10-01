@@ -1,0 +1,16 @@
+{
+    "name": "cpt-parent",
+    "description": "Define a page as parent of a CPT.",
+    "homepage": "https://rue-de-la-vieille.fr/",
+    "type": "wordpress-muplugin",
+    "license": "private",
+    "authors": [
+	{
+	    "name"    : "Jérôme Mulsant",
+	    "homepage": "https://rue-de-la-vieille.fr/"
+	}
+    ],
+    "require": {
+        "php": ">=5.4"
+    }
+}
