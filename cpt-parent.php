@@ -113,7 +113,7 @@ class CptParent
             
             add_filter('the_title', function ($title, $id) {
                 global $wp_query;
-                if ($wp_query->is_main_query && $wp_query->is_archive && $wp_query->get('post_type') === $this->post_type) {
+                if ($wp_query->is_main_query() && $wp_query->is_archive && $wp_query->get('post_type') === $this->post_type) {
                     $parent = get_post($this->parent);
                     if ($parent) {
                         $title = $parent->post_title;
