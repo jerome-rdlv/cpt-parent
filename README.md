@@ -24,6 +24,8 @@ require_once __DIR__ .'/cpt-parent/cpt-parent.php';
 
 ## Usage
 
+### Enable
+
 You need to add a *filter* to enable the feature for your CPT. For example to enable the
 parent page feature for a `team` CPT, you’ll add (in another `mu-plugin`):
 
@@ -45,6 +47,27 @@ When done, a corresponding field appear in the WordPress administration,
 at the bottom of the *Settings / Reading* screen.
 
 ![](screenshot.png)
+
+### Template usage
+
+For a `team` CPT, you can use your `archive-team.php` template as usual. In this template,
+two actions allow to switch the main WordPress loop to the page and back to the post list:
+
+```php
+// switch WordPress main loop to page
+do_action('cpt_parent_page_context');
+
+// output the parent page title
+the_title();
+
+// reset WordPress main loop to post list
+do_action('cpt_parent_reset_context');
+```
+
+## Breadcrumbs
+
+When [Yoast SEO](https://github.com/Yoast/wordpress-seo) is available
+the breadcrumbs is changed to reflect the modified hierarchy.
 
 ## Localization
 

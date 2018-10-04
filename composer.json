@@ -1,9 +1,9 @@
 {
     "name": "cpt-parent",
-    "description": "Define a page as parent of a CPT.",
-    "homepage": "https://rue-de-la-vieille.fr/",
+    "description": "WordPress plugin to define a page as parent of a custom post type",
+    "homepage": "https://github.com/jerome-rdlv/cpt-parent",
     "type": "wordpress-muplugin",
-    "license": "private",
+    "license": "MIT",
     "authors": [
 	{
 	    "name"    : "Jérôme Mulsant",
