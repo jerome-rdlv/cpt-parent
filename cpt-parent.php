@@ -33,6 +33,21 @@ class CptParent
                 }
             }
         }, 10, 2);
+        
+        add_action('cpt_parent_page_context', function () {
+            $post_type = get_post_type();
+            if (is_post_type_archive() && apply_filters('cpt_has_parent_page', false, $post_type)) {
+                $pagename = get_page_uri(get_option(sprintf(self::OPTION_FORMAT, $post_type)));
+                query_posts(array(
+                    'pagename' => $pagename,
+                ));
+                the_post();
+            }
+        });
+        
+        add_action('cpt_parent_reset_context', function () {
+            wp_reset_query();
+        });
 
         // transform breadcrumbs
         add_filter('wpseo_breadcrumb_links', function ($crumbs) {
@@ -134,6 +149,7 @@ class CptParent
                 }
             });
 
+            // flush rewrite rule on parent page slug changes
             add_action('save_post', function ($post_id) {
                 $post_ids = $this->getParentIds();
                 if (in_array($post_id, $post_ids)) {
@@ -150,9 +166,15 @@ class CptParent
                 if ($item->type === 'post_type_archive' && $item->object === $this->post_type) {
                     $post = get_post();
                     if ($post && $post->post_type === $this->post_type) {
+                        // menu item is ancestor of current post is of type $this->post_type
                         $classes[] = 'current_page_ancestor';
                         $classes[] = 'current-page-ancestor';
                         $classes[] = 'current-menu-ancestor';
+                    }
+                    if (get_the_ID() == get_option($this->option_name)) {
+                        // we are on post type parent page
+                        $classes[] = 'current-menu-item';
+                        $classes[] = 'current_page_item';
                     }
                 }
                 return $classes;
