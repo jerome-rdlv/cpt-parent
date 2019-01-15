@@ -4,6 +4,7 @@ CptParent::init();
 
 class CptParent
 {
+    const TEXTDOMAIN = 'cpt-parent';
     const OPTION_FORMAT = 'page_for_%s';
     
     private static $instances = array();
@@ -11,7 +12,13 @@ class CptParent
     
     public static function init()
     {
-        load_muplugin_textdomain('cpt-parent');
+        $i18n_path = dirname(plugin_basename(__FILE__)) . '/lang';
+        if (strpos(__DIR__, WPMU_PLUGIN_DIR) !== false) {
+            load_muplugin_textdomain(self::TEXTDOMAIN, $i18n_path);
+        }
+        else {
+            load_plugin_textdomain(self::TEXTDOMAIN, false, $i18n_path);
+        }
 
         // save original post type args and update it
         add_filter('register_post_type_args', function ($args, $post_type) {
@@ -103,13 +110,13 @@ class CptParent
             ));
             add_settings_field(
                 $this->option_name,
-                '<label for="' . $this->option_name . '">' . sprintf(__('Parent page for %s type', 'cpt-parent'), $this->post_type_object->label) . '</label>',
+                '<label for="' . $this->option_name . '">' . sprintf(__('Parent page for %s type', self::TEXTDOMAIN), $this->post_type_object->label) . '</label>',
                 function () {
                     echo wp_dropdown_pages(array(
                         'name'             => $this->option_name,
                         'id'               => $this->option_name,
                         'echo'             => 0,
-                        'show_option_none' => __('— Select —', 'cpt-parent'),
+                        'show_option_none' => __('— Select —', self::TEXTDOMAIN),
                         'selected'         => get_option($this->option_name)
                     ));
                 },
@@ -132,7 +139,7 @@ class CptParent
                 $slug = 'edit.php?post_type='. $this->post_type;
                 if (isset($submenu[$slug])) {
                     $submenu[$slug][] = array(
-                        __('Archive page', 'cpt-parent'),
+                        __('Archive page', self::TEXTDOMAIN),
                         'edit_posts',
                         get_admin_url(null, sprintf('post.php?post=%s&action=edit', $this->parent))
                     );
@@ -144,7 +151,7 @@ class CptParent
                 $post_ids = $this->getParentIds();
                 if (in_array($post->ID, $post_ids)) {
                     echo '<div class="notice notice-warning inline"><p>' .
-                        sprintf(__('You are currently editing the page that shows your latest %s.', 'cpt-parent'), strtolower($this->post_type_object->label)) .
+                        sprintf(__('You are currently editing the page that shows your latest %s.', self::TEXTDOMAIN), strtolower($this->post_type_object->label)) .
                         '</p></div>';
                 }
             });
@@ -182,7 +189,7 @@ class CptParent
             
             // add ACF page type
             add_filter('acf/location/rule_values/page_type', function ($values) {
-                $values[$this->post_type] = sprintf(__('Page of %s', 'cpt-parent'), strtolower($this->post_type_object->label));
+                $values[$this->post_type] = sprintf(__('Page of %s', self::TEXTDOMAIN), strtolower($this->post_type_object->label));
                 return $values;
             });
             add_filter('acf/location/rule_match/page_type', function ($result, $rule, $screen) {
