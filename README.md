@@ -43,7 +43,7 @@ add_filter('cpt_has_parent_page', function ($has_parent, $post_type) {
 }, 10, 2);
 ```
 
-When done, a corresponding field appear in the WordPress administration,
+When done, a page selection field will appear in the WordPress administration,
 at the bottom of the *Settings / Reading* screen.
 
 ![](screenshot.png)
