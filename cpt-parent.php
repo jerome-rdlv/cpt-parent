@@ -6,17 +6,16 @@ class CptParent
 {
     const TEXTDOMAIN = 'cpt-parent';
     const OPTION_FORMAT = 'page_for_%s';
-    
+
     private static $instances = array();
     private static $post_type_args = array();
-    
+
     public static function init()
     {
         $i18n_path = dirname(plugin_basename(__FILE__)) . '/lang';
         if (strpos(__DIR__, WPMU_PLUGIN_DIR) !== false) {
             load_muplugin_textdomain(self::TEXTDOMAIN, $i18n_path);
-        }
-        else {
+        } else {
             load_plugin_textdomain(self::TEXTDOMAIN, false, $i18n_path);
         }
 
@@ -40,7 +39,7 @@ class CptParent
                 }
             }
         }, 10, 2);
-        
+
         add_action('cpt_parent_page_context', function () {
             $post_type = get_post_type();
             if (is_post_type_archive() && apply_filters('cpt_has_parent_page', false, $post_type)) {
@@ -51,7 +50,7 @@ class CptParent
                 the_post();
             }
         });
-        
+
         add_action('cpt_parent_reset_context', function () {
             wp_reset_query();
         });
@@ -74,7 +73,7 @@ class CptParent
                 $parent_post = get_post($parent);
                 unset($crumb['ptarchive']);
                 $crumb['id'] = $parent_post->ID;
-                
+
                 // add ancestors
                 while ($parent_post->post_parent) {
                     $parent_post = get_post($parent_post->post_parent);
@@ -82,18 +81,18 @@ class CptParent
                         'id' => $parent_post->ID,
                     )));
                 }
-                
+
                 break;
             }
             return $crumbs;
         }, 10);
     }
-    
+
     private $post_type;
     private $post_type_object;
     private $option_name;
     private $parent = null;
-    
+
     private function __construct($post_type, WP_Post_Type $post_type_object)
     {
         $this->post_type = $post_type;
@@ -102,7 +101,7 @@ class CptParent
         if (!empty($post_type_object->rewrite['parent'])) {
             $this->parent = $post_type_object->rewrite['parent'];
         }
-        
+
         // display parent page field on reading settings page
         add_action('admin_init', function () {
             register_setting('reading', $this->option_name, array(
@@ -117,7 +116,7 @@ class CptParent
                         'id'               => $this->option_name,
                         'echo'             => 0,
                         'show_option_none' => __('— Select —', self::TEXTDOMAIN),
-                        'selected'         => get_option($this->option_name)
+                        'selected'         => get_option($this->option_name),
                     ));
                 },
                 'reading'
@@ -129,23 +128,23 @@ class CptParent
             $this->parent = $value;
             $this->rewriteRules();
         }, 10, 2);
-        
-        
+
+
         if ($this->parent) {
-            
+
             // add page edit link in CPT menu
             add_action('admin_menu', function () {
                 global $submenu;
-                $slug = 'edit.php?post_type='. $this->post_type;
+                $slug = 'edit.php?post_type=' . $this->post_type;
                 if (isset($submenu[$slug])) {
                     $submenu[$slug][] = array(
                         __('Archive page', self::TEXTDOMAIN),
                         'edit_posts',
-                        get_admin_url(null, sprintf('post.php?post=%s&action=edit', $this->parent))
+                        get_admin_url(null, sprintf('post.php?post=%s&action=edit', $this->parent)),
                     );
                 }
             });
-            
+
             // display notice on edit screen
             add_action('edit_form_after_title', function ($post) {
                 $post_ids = $this->getParentIds();
@@ -170,28 +169,29 @@ class CptParent
 
             // add ancestor classes, lost because archive entry is also a page
             add_filter('nav_menu_css_class', function ($classes, $item) {
-                if ($item->type === 'post_type_archive' && $item->object === $this->post_type) {
-                    $post = get_post();
-                    if ($post && $post->post_type === $this->post_type) {
-                        // menu item is ancestor of current post is of type $this->post_type
-                        $classes[] = 'current_page_ancestor';
-                        $classes[] = 'current-page-ancestor';
-                        $classes[] = 'current-menu-ancestor';
+                // if item is post type parent page or post type archive item
+                if (
+                    ($item->type === 'post_type_archive' && $item->object === $this->post_type) ||
+                    ($item->object_id === $this->parent)
+                ) {
+                    if (is_single()) {
+                        $post = get_post();
+                        if ($post && $post->post_type === $this->post_type) {
+                            // menu item is ancestor of current post is of type $this->post_type
+                            $classes[] = 'current_page_ancestor';
+                            $classes[] = 'current-page-ancestor';
+                            $classes[] = 'current-menu-ancestor';
+                        }
                     }
-                    if (get_the_ID() == get_option($this->option_name)) {
-                        // we are on post type parent page and this item is the archive link
+                    elseif (get_the_ID() == get_option($this->option_name) || is_post_type_archive($this->post_type)) {
+                        // we are on post type parent page / on post type archive page
                         $classes[] = 'current-menu-item';
                         $classes[] = 'current_page_item';
                     }
                 }
-                elseif ($item->object_id === $this->parent) {
-                    // we are on post type parent page and this item is the parent page
-                    $classes[] = 'current-menu-item';
-                    $classes[] = 'current_page_item';
-                }
                 return $classes;
             }, 10, 2);
-            
+
             // add ACF page type
             add_filter('acf/location/rule_values/page_type', function ($values) {
                 $values[$this->post_type] = sprintf(__('Page of %s', self::TEXTDOMAIN), strtolower($this->post_type_object->label));
@@ -210,7 +210,7 @@ class CptParent
                 }
                 return $result;
             }, 10, 3);
-            
+
             // translate rewrite rules
             /*
              * Should let translation plugin handle that.
@@ -266,7 +266,7 @@ class CptParent
         }
         return $post_ids;
     }
-    
+
     private function rewriteRules()
     {
         // force post type update before flush rewrite rules
