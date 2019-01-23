@@ -179,10 +179,15 @@ class CptParent
                         $classes[] = 'current-menu-ancestor';
                     }
                     if (get_the_ID() == get_option($this->option_name)) {
-                        // we are on post type parent page
+                        // we are on post type parent page and this item is the archive link
                         $classes[] = 'current-menu-item';
                         $classes[] = 'current_page_item';
                     }
+                }
+                elseif ($item->object_id === $this->parent) {
+                    // we are on post type parent page and this item is the parent page
+                    $classes[] = 'current-menu-item';
+                    $classes[] = 'current_page_item';
                 }
                 return $classes;
             }, 10, 2);
