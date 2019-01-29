@@ -42,7 +42,9 @@ class CptParent
 
         add_action('cpt_parent_page_context', function () {
             $post_type = get_post_type();
-            if ((is_post_type_archive() || is_tax()) && apply_filters('cpt_has_parent_page', false, $post_type)) {
+            $cpt_has_parent = apply_filters('cpt_has_parent_page', false, $post_type);
+            $is_archive = is_post_type_archive($post_type) || is_tax(get_post_type_object($post_type)->taxonomies);
+            if ($cpt_has_parent && $is_archive) {
                 $pagename = get_page_uri(get_option(sprintf(self::OPTION_FORMAT, $post_type)));
                 query_posts(array(
                     'pagename' => $pagename,
