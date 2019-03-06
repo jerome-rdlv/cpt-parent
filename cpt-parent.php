@@ -25,7 +25,7 @@ class CptParent
                 self::$post_type_args[$post_type] = $args;
                 $parent = get_option(sprintf(self::OPTION_FORMAT, $post_type));
                 if ($parent) {
-                    $args['rewrite']['slug'] = get_page_uri($parent);
+                    $args['rewrite']['slug'] = preg_replace('/^[^\/]+/', get_page_uri($parent), $args['rewrite']['slug']);
                     $args['rewrite']['parent'] = $parent;
                 }
             }
