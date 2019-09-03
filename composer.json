@@ -1,5 +1,5 @@
 {
-    "name": "cpt-parent",
+    "name": "jerome-rdlv/cpt-parent",
     "description": "WordPress plugin to define a page as parent of a custom post type",
     "homepage": "https://github.com/jerome-rdlv/cpt-parent",
     "type": "wordpress-muplugin",
